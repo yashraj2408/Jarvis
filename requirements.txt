@@ -1,0 +1,9 @@
+pyttsx3
+SpeechRecognition
+eel
+gTTS
+playsound==1.2.2
+pyaudio
+opencv-contrib-python
+numpy
+pillow
