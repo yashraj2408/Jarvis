@@ -1,6 +1,6 @@
 """
 ⚡ J.A.R.V.I.S. (Just A Rather Very Intelligent System)
-Cloud Web Voice Assistant - Powered by Streamlit Community Cloud
+Cloud & Desktop Web Voice Assistant - Powered by Streamlit
 Developed for Yash Raj (Sir)
 """
 
@@ -14,7 +14,13 @@ import urllib.request
 import json
 from datetime import datetime
 import streamlit as st
-import streamlit.components.v1 as components
+
+# Import native browser microphone component
+try:
+    from streamlit_mic_recorder import speech_to_text
+    MIC_AVAILABLE = True
+except ImportError:
+    MIC_AVAILABLE = False
 
 # ----------------- PAGE CONFIG -----------------
 st.set_page_config(
@@ -62,13 +68,13 @@ st.markdown("""
         display: flex;
         justify-content: center;
         align-items: center;
-        padding: 20px 0;
+        padding: 16px 0;
     }
     
     .arc-reactor {
         position: relative;
-        width: 140px;
-        height: 140px;
+        width: 130px;
+        height: 130px;
         border-radius: 50%;
         box-shadow: 0 0 40px #06b6d4, inset 0 0 40px #06b6d4;
         border: 4px solid #38bdf8;
@@ -79,8 +85,8 @@ st.markdown("""
     }
     
     .arc-core {
-        width: 70px;
-        height: 70px;
+        width: 65px;
+        height: 65px;
         background: radial-gradient(circle, #ffffff 10%, #38bdf8 60%, #0284c7 100%);
         border-radius: 50%;
         box-shadow: 0 0 25px #ffffff, 0 0 45px #38bdf8;
@@ -143,9 +149,6 @@ if "messages" not in st.session_state:
         {"role": "jarvis", "content": "All systems online and operational, Sir. J.A.R.V.I.S. is at your service. How may I assist you today?"}
     ]
 
-if "last_voice_text" not in st.session_state:
-    st.session_state.last_voice_text = ""
-
 # ----------------- AUDIO SYNTHESIS (JARVIS VOICE) -----------------
 def generate_jarvis_speech(text):
     """Generates UK-accented British AI voice audio using gTTS in-memory"""
@@ -157,7 +160,7 @@ def generate_jarvis_speech(text):
         fp.seek(0)
         audio_b64 = base64.b64encode(fp.read()).decode()
         return audio_b64
-    except Exception as e:
+    except Exception:
         return None
 
 # ----------------- CORE CAPABILITY ENGINES -----------------
@@ -185,7 +188,6 @@ def get_weather(city="London"):
 def search_wikipedia(query):
     """Fetches instant knowledge summary via Wikipedia official REST API"""
     try:
-        # Clean query
         q = re.sub(r'^(who is|what is|tell me about|explain|search for|wikipedia)\s+', '', query, flags=re.IGNORECASE).strip()
         encoded_title = urllib.parse.quote(q.replace(' ', '_'))
         url = f"https://en.wikipedia.org/api/rest_v1/page/summary/{encoded_title}"
@@ -204,7 +206,6 @@ def search_wikipedia(query):
 def calculate_expression(query):
     """Safely calculates arithmetic expressions"""
     cleaned = re.sub(r'^(calculate|what is|compute)\s+', '', query, flags=re.IGNORECASE).strip()
-    # Only allow safe mathematical characters
     if re.match(r'^[0-9\+\-\*\/\(\)\.\s\%\^]+$', cleaned):
         try:
             expr = cleaned.replace('^', '**')
@@ -237,7 +238,7 @@ def process_jarvis_command(cmd):
             f"**STATUS REPORT**: Timestamp: `{now}`\n"
             "- Core Arc Reactor: 100% capacity (Stable)\n"
             "- Firewall Protocols: Active & Secure\n"
-            "- Cloud Streamlit Node: Operational\n"
+            "- Systems: Fully Operational\n"
             "- All systems ready for your deployment, Sir."
         )
 
@@ -309,14 +310,14 @@ with st.sidebar:
         <div class="hud-value" style="color:#38BDF8;">3.2 GIGA ожид/s</div>
     </div>
     <div class="hud-card">
-        <div class="hud-label">CLOUD NODE</div>
-        <div class="hud-value" style="color:#F59E0B;">STREAMLIT CLOUD</div>
+        <div class="hud-label">ENVIRONMENT</div>
+        <div class="hud-value" style="color:#F59E0B;">DESKTOP & CLOUD</div>
     </div>
     """, unsafe_allow_html=True)
     
     st.markdown("---")
-    st.markdown('<div class="hud-label">VOICE AUDIO SETTINGS</div>', unsafe_allow_html=True)
-    voice_enabled = st.checkbox("Enable J.A.R.V.I.S. Audio Output", value=True)
+    st.markdown('<div class="hud-label">VOICE AUDIO OUTPUT</div>', unsafe_allow_html=True)
+    voice_enabled = st.checkbox("Enable J.A.R.V.I.S. Voice Response", value=True)
     
     st.markdown("---")
     st.caption("Developed by Sir Yash Raj | Stark Industries AI")
@@ -334,79 +335,26 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# ----------------- BROWSER MICROPHONE COMPONENT (WEB SPEECH API) -----------------
-st.markdown("""
-<div style="text-align:center; margin-bottom: 20px;">
-    <button id="voiceBtn" onclick="startRecognition()" style="
-        background: linear-gradient(135deg, #0284c7 0%, #06b6d4 100%);
-        border: 2px solid #38bdf8;
-        color: white;
-        padding: 12px 28px;
-        font-family: 'Orbitron', sans-serif;
-        font-size: 0.95rem;
-        font-weight: 700;
-        letter-spacing: 0.1em;
-        border-radius: 30px;
-        cursor: pointer;
-        box-shadow: 0 0 20px rgba(6, 182, 212, 0.5);
-        transition: all 0.3s ease;
-    ">
-        🎙️ TAP TO SPEAK TO JARVIS
-    </button>
-    <div id="voiceStatus" style="color: #94A3B8; font-size: 0.85rem; margin-top: 8px; font-family: monospace;">
-        Microphone ready (Click to speak in your browser)
-    </div>
-</div>
-
-<script>
-    function startRecognition() {
-        const btn = document.getElementById('voiceBtn');
-        const status = document.getElementById('voiceStatus');
-        
-        if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-            status.innerText = "Speech recognition is not supported in this browser. Please use Chrome/Edge or the text prompt below.";
-            return;
-        }
-        
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        const recognition = new SpeechRecognition();
-        recognition.continuous = false;
-        recognition.interimResults = false;
-        recognition.lang = 'en-US';
-        
-        btn.style.boxShadow = "0 0 35px #f59e0b";
-        btn.innerText = "🔴 LISTENING, SIR...";
-        status.innerText = "Listening to your voice...";
-        
-        recognition.onresult = function(event) {
-            const transcript = event.results[0][0].transcript;
-            btn.innerText = "🎙️ TAP TO SPEAK TO JARVIS";
-            btn.style.boxShadow = "0 0 20px rgba(6, 182, 212, 0.5)";
-            status.innerText = "Recognized: '" + transcript + "' - Processing...";
-            
-            // Set input in Streamlit chat input or clipboard
-            navigator.clipboard.writeText(transcript);
-            alert("JARVIS heard: \"" + transcript + "\"\n\n(Copied to clipboard. Paste in the command bar below to execute!)");
-        };
-        
-        recognition.onerror = function(event) {
-            btn.innerText = "🎙️ TAP TO SPEAK TO JARVIS";
-            btn.style.boxShadow = "0 0 20px rgba(6, 182, 212, 0.5)";
-            status.innerText = "Mic error or timeout: " + event.error;
-        };
-        
-        recognition.onend = function() {
-            btn.innerText = "🎙️ TAP TO SPEAK TO JARVIS";
-            btn.style.boxShadow = "0 0 20px rgba(6, 182, 212, 0.5)";
-        };
-        
-        recognition.start();
-    }
-</script>
-""", unsafe_allow_html=True)
+# ----------------- NATIVE BROWSER MICROPHONE RECORDING -----------------
+st.markdown("<div style='text-align: center; margin: 10px 0;'>", unsafe_allow_html=True)
+voice_text = None
+if MIC_AVAILABLE:
+    voice_text = speech_to_text(
+        start_prompt="🎙️ TAP TO SPEAK TO J.A.R.V.I.S.",
+        stop_prompt="⏹️ RECORDING AUDIO... (CLICK TO SEND)",
+        language="en",
+        use_container_width=True,
+        just_once=True,
+        key="jarvis_mic"
+    )
+    if voice_text:
+        st.success(f"Recognized Voice: \"{voice_text}\"")
+else:
+    st.info("💡 To enable the microphone button, ensure `streamlit-mic-recorder` is installed.")
+st.markdown("</div>", unsafe_allow_html=True)
 
 # Quick Action Chips
-st.markdown('<div style="text-align:center; color:#64748B; font-size:0.85rem; margin-bottom:10px;">TACTICAL QUICK COMMANDS:</div>', unsafe_allow_html=True)
+st.markdown('<div style="text-align:center; color:#64748B; font-size:0.85rem; margin-bottom:8px;">TACTICAL QUICK DIRECTIVES:</div>', unsafe_allow_html=True)
 q_col1, q_col2, q_col3, q_col4 = st.columns(4)
 quick_cmd = None
 with q_col1:
@@ -439,7 +387,15 @@ with chat_container:
 
 # Command input box
 user_prompt = st.chat_input("Sir, what can I do for you today?")
-final_input = quick_cmd if quick_cmd else user_prompt
+
+# Determine final input
+final_input = None
+if voice_text:
+    final_input = voice_text
+elif quick_cmd:
+    final_input = quick_cmd
+elif user_prompt:
+    final_input = user_prompt
 
 if final_input:
     # 1. Log User Message
@@ -452,7 +408,7 @@ if final_input:
     # 3. Audio Voice Synthesizer
     if voice_enabled:
         spoken_text = response["text"] if isinstance(response, dict) else re.sub(r'\[.*?\]|\(.*?\)|[\*\_]', '', response)
-        audio_b64 = generate_jarvis_speech(spoken_text[:250]) # Speaks up to 250 chars cleanly
+        audio_b64 = generate_jarvis_speech(spoken_text[:250])
         if audio_b64:
             st.markdown(f"""
             <audio autoplay style="display:none;">

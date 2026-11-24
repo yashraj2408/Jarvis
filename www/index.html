@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>J.A.R.V.I.S. | Stark Industries</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script type="text/javascript" src="/eel.js"></script>
+</head>
+<body>
+    <div class="hud-wrapper">
+        <header class="hud-header">
+            <div class="brand">STARK INDUSTRIES OS // v4.2</div>
+            <div class="telemetry">STATUS: <span id="sys-status" class="status-online">AUTHENTICATING</span></div>
+        </header>
+
+        <main class="hud-main">
+            <!-- Center Arc Reactor -->
+            <div id="arcReactorSection" class="arc-container">
+                <div class="arc-outer-ring">
+                    <div class="arc-inner-ring">
+                        <div class="arc-core"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Jarvis Voice Output & Status Message -->
+            <div class="hud-readout">
+                <div id="loader" class="readout-text">INITIALIZING QUANTUM ENCRYPTED PROTOCOLS...</div>
+                <div id="faceAuth" class="readout-text hidden">SCANNING BIOMETRICS (FACE RECOGNITION)...</div>
+                <div id="faceAuthSuccess" class="readout-text hidden success">BIOMETRIC AUTHENTICATION CONFIRMED</div>
+                <div id="chatMessage" class="readout-output">Awaiting your command, Sir.</div>
+            </div>
+
+            <!-- User input command bar -->
+            <div class="command-bar">
+                <input type="text" id="userInput" placeholder="Speak or enter directive, Sir..." autocomplete="off">
+                <button id="sendBtn" onclick="sendCommand()">EXECUTE</button>
+            </div>
+        </main>
+
+        <footer class="hud-footer">
+            <div>ARC REACTOR OUTPUT: 100%</div>
+            <div>LOCAL OS HOST: ONLINE</div>
+        </footer>
+    </div>
+
+    <script src="main.js"></script>
+</body>
+</html>
