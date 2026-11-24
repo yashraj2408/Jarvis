@@ -1,9 +1,4 @@
-pyttsx3
-SpeechRecognition
-eel
-gTTS
-playsound==1.2.2
-pyaudio
-opencv-contrib-python
-numpy
-pillow
+streamlit>=1.35.0
+gTTS>=2.4.0
+requests>=2.31.0
+beautifulsoup4>=4.12.0
